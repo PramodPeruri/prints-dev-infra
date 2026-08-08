@@ -8,7 +8,7 @@ terraform {
 
   backend "s3" {
     bucket = "pramod-daws"
-    key    = "roboshop-dev-vpc"
+    key    = "prints-dev-vpc"
     region = "us-east-1"
     use_lockfile = true
     encrypt = true
