@@ -38,3 +38,15 @@ resource "aws_instance" "catalogue" {
     ]
   }
 }
+
+resource "aws_ec2_instance_state" "stop_my_instance" {
+    instance_id = aws_instance.catalogue.id
+    state = "stopped"
+    depends_on = [terraform_data.catalogue]
+}
+
+resource "aws_ami_from_instance" "catalogue" {
+  name = "${local.common_name_suffix}-catalogue-ami"
+  source_instance_id = aws_instance.catalogue.id
+  depends_on = [aws_ec2_instance_state.catalogue]
+}
