@@ -134,6 +134,14 @@ resource "aws_autoscaling_group" "catalogue" {
   vpc_zone_identifier       = [local.private_subnet_id]
   target_group_arns = [aws_lb_target_group.catalogue.arn]
 
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+    triggers = ["tag"]
+  }
+
   dynamic "tag" {
     for_each = merge (
         local.common_tags,
