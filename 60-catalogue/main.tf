@@ -39,7 +39,7 @@ resource "aws_instance" "catalogue" {
   }
 }
 
-resource "aws_ec2_instance_state" "stop_my_instance" {
+resource "aws_ec2_instance_state" "catalogue" {
     instance_id = aws_instance.catalogue.id
     state = "stopped"
     depends_on = [terraform_data.catalogue]
@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "catalogue" {
   name     = "${local.common_name_suffix}-catalogue"
   port     = 8080
   protocol = "HTTP"
-  vpc_id   = local.vpc_id
+  vpc_id   = "local.vpc_id"
   deregistration_delay = 60
 
   health_check {
