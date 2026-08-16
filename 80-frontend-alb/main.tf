@@ -40,6 +40,7 @@ resource "aws_route53_record" "frontend_alb" {
   zone_id = var.zone_id
   name    = "prints-${var.environment}.${var.domain_name}"
   type    = "A"
+  allow_overwrite = "True"
   alias {
     #ALB related 
     name                   = aws_lb.frontend_alb.dns_name
