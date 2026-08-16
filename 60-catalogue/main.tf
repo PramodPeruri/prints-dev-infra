@@ -49,6 +49,12 @@ resource "aws_ami_from_instance" "catalogue" {
   name = "${local.common_name_suffix}-catalogue-ami"
   source_instance_id = aws_instance.catalogue.id
   depends_on = [aws_ec2_instance_state.catalogue]
+  tags = merge (
+        local.common_tags,
+        {
+            Name = "${local.common_name_suffix}-catalogue-ami" # roboshop-dev-mongodb
+        }
+  )
 }
 
 resource "aws_lb_target_group" "catalogue" {
@@ -79,6 +85,8 @@ resource "aws_launch_template" "catalogue" {
 
    vpc_security_group_ids = [local.catalogue_sg_id]
 
+   update_default_version = true
+
    tag_specifications {
      resource_type = "instance"
 
@@ -101,6 +109,14 @@ resource "aws_launch_template" "catalogue" {
     )
    }
 
+    # tags attached to the launch template
+  tags = merge(
+      local.common_tags,
+      {
+        Name = "${local.common_name_suffix}-catalogue"
+      }
+  )
+
 }
 
 resource "aws_autoscaling_group" "catalogue" {
@@ -115,7 +131,7 @@ resource "aws_autoscaling_group" "catalogue" {
     id      = aws_launch_template.catalogue.id
     version = aws_launch_template.catalogue.latest_version
   }
-  vpc_zone_identifier       = [local.private_subnet_id]
+  vpc_zone_identifier       = local.private_subnet_id
   target_group_arns = [aws_lb_target_group.catalogue.arn]
 
   dynamic "tag" {
@@ -141,7 +157,7 @@ timeouts {
 resource "aws_autoscaling_policy" "catalogue" {
   autoscaling_group_name = aws_autoscaling_group.catalogue.name
   name                   = "${local.common_name_suffix}-catalogue"
-  policy_type            = "PredictiveScaling"
+  policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {
     predefined_metric_specification {
@@ -174,7 +190,7 @@ resource "terraform_data" "catalogue_local" {
     aws_instance.catalogue.id
   ]
   
-  depends_on = [ aws_lb_listener_rule.catalogue ]
+  depends_on = [ aws_autoscaling_policy.catalogue ]
 
   provisioner "local-exec" {
     command = "aws ec2 terminate-instances --instance-ids ${aws_instance.catalogue.id}"
