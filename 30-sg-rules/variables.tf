@@ -7,3 +7,7 @@ variable "environment" {
     default = "dev"
 
 }
+
+variable "components" {
+     default = {}
+}
