@@ -334,4 +334,4 @@ resource "aws_security_group_rule" "components_vpn" {
   from_port         = each.value.port
   protocol       = "tcp"
   to_port           = each.value.port
-}
+} 
